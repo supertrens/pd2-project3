@@ -1,9 +1,25 @@
 <RCC>
     <qresource prefix="/pic">
-        <file>background.png</file>
-        <file>Cupcake.png</file>
-        <file>Croissant.png</file>
-        <file>Macaroon.png</file>
-        <file>Donut.png</file>
+        <file>picture/background.png</file>
+        <file>picture/Croissant.png</file>
+        <file>picture/Croissant_bomb.png</file>
+        <file>picture/Croissant_horizontal.png</file>
+        <file>picture/Croissant_vertical.png</file>
+        <file>picture/Croissant-Highlighted.png</file>
+        <file>picture/Cupcake.png</file>
+        <file>picture/Cupcake-Highlighted.png</file>
+        <file>picture/Donut.png</file>
+        <file>picture/Donut-Highlighted.png</file>
+        <file>picture/Macaroon.png</file>
+        <file>picture/Macaroon-Highlighted.png</file>
+        <file>picture/Cupcake_bomb.png</file>
+        <file>picture/Cupcake_horizontal.png</file>
+        <file>picture/Cupcake_vertical.png</file>
+        <file>picture/Donut_bomb.png</file>
+        <file>picture/Donut_horizontal.png</file>
+        <file>picture/Donut_vertical.png</file>
+        <file>picture/Macaroon_bomb.png</file>
+        <file>picture/Macaroon_horizontal.png</file>
+        <file>picture/Macaroon_vertical.png</file>
     </qresource>
 </RCC>

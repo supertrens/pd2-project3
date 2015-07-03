@@ -1,11 +1,18 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QMainWindow>
+#include <QWidget>
+#include <ctime>
+#include <cstdlib>
+#include <QString>
+
 #include "grille.h"
 #include "destroy.h"
-
-#include <QMainWindow>
-
+#include "selection5_v.h"
+#include "selection4_v.h"
+#include "selection3_v.h"
+#include "selection3_h.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,35 +25,48 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    bool isClicked=false;
+    int rowBackUp;
+    int colBackUp;
+    int score;
+    int step;
 
-    void startGame();
-    void setCandySelected( Grille *grille); //setClickedPicture
-    bool Check    (int row1,int col1,int row2,int col2);
-    bool Check5_V (int row,int col);
-    bool Check5_H  (int row,int col);
-    bool Check4_V (int row,int col);
-    bool Check4_H (int row,int col);
-    bool Check3_V (int row,int col);
-    bool Check3_H (int row,int col);
+    void gameStart();
+    void setClickPicture(Grille *grille);
+    bool check(int row1, int col1,int row2, int col2);//find the blocks to destroy
+    bool checkDoubleStar(int row1, int col1,int row2, int col2);
+    bool checkBombStar(int row1, int col1,int row2, int col2);
+    bool checkOneStar(int row1, int col1,int row2, int col2);
+    bool checkStar(int row, int col);
+    bool checkBox(int row, int col);
+    bool checkLine(int row, int col);
+    bool checkHorThree(int row, int col);
+    bool checkVerThree(int row, int col);
 
-    void refreshCandy();  //renew picture
-    void remplirVide();  //MoveFillZero
-    bool effacerLesPossibilites(); // EliminateLeftPOssiblity
-    void selectionApresElimination(); //SpawnAfterEliminate
+    bool remplirVide();//Remplir Vide
+    bool peuEtreDetruit();//effacerLesPossibilites
+    bool cannotPlay();//
+    void fillInZero();//selectionApresElimination
+    void refreshCandy();
+    void resetMap();
 
 
-public slots:
-    void candySelected( int row , int col);
-    void foo();
+    QString score_str;
+    QString step_str;
 
 private:
     Ui::MainWindow *ui;
+    Grille *grille[10][10];
+    Destroy *e;
 
-    Grille * grille[N][N];
-    Destroy * destroy;
-    bool isSelected ;
-    int rowBackUp ;
-    int colBackUp ;
+public slots:
+    void button_clicked(int row, int col);
+    void foo();
+
+private slots:
+
+    void on_restartGame_clicked();
+    void on_quitGame_clicked();
 };
 
 #endif // MAINWINDOW_H

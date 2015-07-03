@@ -1,5 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDebug>
+#include <QString>
+
+#include "destroy.h"
 #include "destroy_horizontal.h"
 #include "destroy_vertical.h"
 #include "central.h"
@@ -9,37 +13,32 @@
 #include "selection4_v.h"
 #include "selection5_h.h"
 #include "selection5_v.h"
-#include "selection_block.h"
+#include "Selection_block.h"
 #include "selection_color.h"
-
-#include <QPushButton>
-#include <QDebug>
-#include <cstdlib>
-#include <ctime>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     //Insert the Background Picnture
-    QPixmap bkgnd(":/pic/background.png");
-        bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
-        QPalette palette;
-        palette.setBrush(QPalette::Background, bkgnd);
-        this->setPalette(palette);
+       QPixmap bkgnd(":/pic/picture/background.png");
+           bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
+           QPalette palette;
+           palette.setBrush(QPalette::Background, bkgnd);
+           this->setPalette(palette);
 
-        for(int i=0 ; i<N ; i++){
-               for(int j=0 ; j<N ; j++){
-                   grille[i][j]=new Grille(this,i,j);
-                   connect(grille[i][j],SIGNAL(Click(int,int)),this,SLOT( candySelected(int,int)));
-                   connect(grille[i][j],SIGNAL(moveDone()),this,SLOT(foo()));
-               }
-           }
-           srand(time(NULL));
-           isSelected = false;
-           startGame();
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            grille[i][j]= new Grille(this, i, j);
+            connect(grille[i][j], SIGNAL(Click(int,int)), this, SLOT(button_clicked(int, int)));
+            connect(grille[i][j], SIGNAL(moveDone()), this, SLOT(foo()));
+        }
+    }
+
+    gameStart();
 }
 
 MainWindow::~MainWindow()
@@ -47,567 +46,783 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::startGame()
+void MainWindow::gameStart()
 {
-    isSelected = false;
-    for(int i=0 ; i<N ; i++)
+
+    score=0;
+    score_str = QString::number(score,10);
+    ui->scoreText->setText(score_str);
+
+    step = 25;
+    step_str= QString::number(step,10);
+    ui->stepText->setText(step_str);
+
+    for(int i=0; i<10; i++)//row
     {
-        for(int j=0; j < N ; j++)
+        for (int j=0; j<10; j++)//column
         {
             grille[i][j]->setNumber();
             grille[i][j]->setCandy();
-            if(j>=2&&((grille[i][j]->tile)==(grille[i][j-1]->tile))&&((grille[i][j]->tile)==(grille[i][j-2]->tile)))
-                 j--; //check the row
 
-            if(i>=2&&((grille[i][j]->tile)==(grille[i-1][j]->tile))&&((grille[i][j]->tile)==(grille[i-2][j]->tile)))
-                 j --; // check column
+            if (j>=2 && (grille[i][j]->tile == grille[i][j-2]->tile) && (grille[i][j]->tile == grille[i][j-1]->tile))
+            {
+                j--;
+            }
+
+            if (i>=2 && (grille[i][j]->tile == grille[i-2][j]->tile) && (grille[i][j]->tile == grille[i-1][j]->tile))
+            {
+                j--;
+            }
         }
     }
 }
 
-void MainWindow::candySelected(int row,int col)
+void MainWindow::setClickPicture(Grille *grille)
 {
-    qDebug()<<(grille[row][col]->tile);
-    if(isSelected == false)
+    if(!isClicked)
     {
-       setCandySelected(grille[row][col]);
-       rowBackUp  = row;
-       colBackUp  = col;
-       isSelected = true;
+        switch(grille->tile){
+                    case 1:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/picture/Cupcake-Highlighted.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 11:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/red_vertical_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 12:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/red_horizontal_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 13:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/red_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 2:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/picture/Croissant-Highlighted.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 21:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_vertical_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 22:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_horizontal_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 23:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 3:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic//picture/Macaroon-Highlighted.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 31:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/green_vertical_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 32:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/green_horizontal_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 33:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/green_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 4:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/picture/Donut-Highlighted.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 41:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/blue_vertical_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 42:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/blue_horizontal_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 43:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/blue_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+                    case 5:
+                        grille->button->setIcon(QIcon(QPixmap(":/pic/power_bomb_clicked.png")));
+                         grille->button->setIconSize(grille->button->size());
+                        break;
+
+            }
     }
-    else{
-       if(rowBackUp == row && colBackUp == col+1){
-           *grille[row][col]- grille[row][col+1]; // change
-           if(!Check(row,col,rowBackUp,colBackUp)){
-               *grille[row][col]- grille[row][col+1]; // nothing done
-           }
-       }
-       else if(rowBackUp==row&&colBackUp==col-1){
-           *grille[row][col-1]-grille[row][col]; // change
-           if(!Check(row,col,rowBackUp,colBackUp)){
-               *grille[row][col-1]- grille[row][col]; // nothing done
-           }
-       }
-       else if(rowBackUp==row+1&&colBackUp==col){
-           *grille[row][col]| grille[row+1][col]; // change
-           if(!Check(row,col,rowBackUp,colBackUp)){
-               *grille[row][col]| grille[row+1][col]; // nothing done
-           }
-       }
-       else if(rowBackUp==row-1&&colBackUp==col){
-           *grille[row-1][col] | grille[row][col]; // change
-           if(!Check(row,col,rowBackUp,colBackUp)){
-               *grille[row-1][col]| grille[row][col]; // nothing done
-           }
-       }
-       else{
-           setCandySelected( grille[rowBackUp][colBackUp] );
-       }
-       isSelected=false;
-    }
-    return;
+    else
+
+        grille->setCandy();
 }
 
 
-bool MainWindow::Check(int row1,int col1,int row2,int col2)
+bool MainWindow::check(int row1, int col1, int row2, int col2)
 {
-    bool noChange[12]={0};
 
-    // check destroy central
-    if((grille[row1][col1]->tile==5)&&(grille[row2][col2]->tile==5))
+    bool dechouke_el[13] ={0} ;
+    dechouke_el[0]= checkDoubleStar(row1, col1, row2, col2);
+    dechouke_el[1]= checkBombStar(row1, col1, row2, col2);
+    dechouke_el[2]= checkOneStar(row1, col1, row2, col2);
+    dechouke_el[3]= checkStar(row1, col1);
+    dechouke_el[4]= checkStar(row2, col2);
+    dechouke_el[5]= checkBox(row1, col1);
+    dechouke_el[6]= checkBox(row2, col2);
+    dechouke_el[7] = checkLine(row1, col1);
+    dechouke_el[8] = checkLine(row2, col2);
+    dechouke_el[9] = checkHorThree(row1, col1);
+    dechouke_el[10]= checkHorThree(row2, col2);
+    dechouke_el[11]= checkVerThree(row1, col1);
+    dechouke_el[12]= checkVerThree(row2, col2);
+
+    if (dechouke_el[0]) {score=score+2000;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[1]) {score=score+1500;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[2]) {score=score+1000;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[3]) {score=score+800;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[4]) {score=score+800;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[5]) {score=score+500;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[6]) {score=score+500;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[7]) {score=score+250;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[8]) {score=score+250;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[9]) {score=score+100;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[10]) {score=score+100;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[11]) {score=score+100;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+    if (dechouke_el[12]) {score=score+100;score_str= QString::number(score,10);ui->scoreText->setText(score_str);}
+
+
+    for (int i=0; i<13; i++)
+     if (dechouke_el[i]==true)
+        {
+            step = step - 1;
+            step_str = QString::number(step,10);
+            ui->stepText->setText(step_str);
+            return true;
+        }
+
+    return false;
+}
+
+
+
+bool MainWindow::checkDoubleStar(int row1, int col1, int row2, int col2)
+{
+    bool qqch=false;
+    if (grille[row1][col1]->tile==5 && grille[row2][col2]->tile==5)
     {
-        destroy = new Central;
-        destroy->elimination(grille,grille[row1][col1]);
-        delete destroy;
-        return true;
+
+        for (int i=0; i<10; i++)
+            for (int j=0; j<10; j++)
+                grille[i][j]->tile=0;
+
+        resetMap();
+        qqch=true;
+    }
+    return qqch;
+}
+
+
+bool MainWindow::checkBombStar(int row1, int col1, int row2, int col2)
+{
+    bool qqch=false;
+    if (grille[row1][col1]->tile==5 && grille[row2][col2]->tile>10 && grille[row2][col2]->tile%10!=0)
+    {
+
+        int color= grille[row2][col2]->tile/10;
+        int bomb= grille[row2][col2]->tile%10;
+
+        grille[row1][col1]->tile=grille[row2][col2]->tile;
+        grille[row2][col2]->tile=0;
+        for (int i=0; i<10; i++)
+        {
+            for (int j=0; j<10; j++)
+            {
+                if (grille[i][j]->tile==color)
+                {
+                    grille[i][j]->tile=color*10+bomb;
+                    switch(bomb)
+                    {
+                  //  Destroy *e;
+                    case 1:
+                        e= new DestroyVertical;
+                        e->elimination(grille, grille[i][j]);
+                        delete e;break;
+                    case 2:
+                        e= new DestroyHorizontal;
+                        e->elimination(grille,grille[i][j]);
+                        delete e;break;
+                    case 3://爆
+                        e= new Selection_block;
+                        e->elimination(grille,grille[i][j]);
+                        delete e;break;
+                    }
+                }
+            }
+        }qqch=true;
     }
 
-
-    // check destroy one color
-    if((grille[row1][col1]->tile==5)||(grille[row2][col2]->tile==5))
+    if (grille[row2][col2]->tile==5 && grille[row1][col1]->tile>10 && grille[row1][col1]->tile%10!=0)
     {
-        if(grille[row1][col1]->tile==5){
-            destroy = new Selection_Color;
-            destroy->elimination(grille,grille[row2][col2]);
-            delete destroy;
-            return true;
+        qDebug() << "Bomb Star-2";
+        int color= grille[row1][col1]->tile/10;
+        int bomb= grille[row1][col1]->tile%10;
+        grille[row2][col2]->tile=grille[row1][col1]->tile;
+        grille[row1][col1]->tile=0;
+        for (int i=0; i<10; i++)
+        {
+            for (int j=0; j<10; j++)
+            {
+                if (grille[i][j]->tile==color)
+                {
+                    grille[i][j]->tile=color*10+bomb;
+                    switch(bomb){
+                    //Destroy *e;
+                    case 1://爆
+                        e= new DestroyVertical;
+                        e->elimination(grille, grille[i][j]);
+                        delete e;break;
+                    case 2://爆
+                        e= new DestroyHorizontal;
+                        e->elimination(grille,grille[i][j]);
+                        delete e;break;
+                    case 3://爆
+                        e= new Selection_block;
+                        e->elimination(grille,grille[i][j]);
+                        delete e;break;
+                    }
+                }
+            }
+        }qqch=true;
+    }return qqch;
+}
+
+bool MainWindow::checkOneStar(int row1, int col1, int row2, int col2)
+{
+    bool qqch=false;
+    if (grille[row1][col1]->tile==5 && grille[row2][col2]->tile<5 )
+    {
+        qDebug() << "One Star-1";
+        int color= grille[row2][col2]->tile;
+        grille[row1][col1]->tile=grille[row2][col2]->tile;
+        grille[row2][col2]->tile=0;
+        for (int i=0; i<10; i++)
+        {
+            for (int j=0; j<10; j++)
+            {
+                if (grille[i][j]->tile/10==color || grille[i][j]->tile==color)
+                    grille[i][j]->tile=0;
+            }
+        }qqch=true;
+    }
+    if (grille[row2][col2]->tile==5 && grille[row1][col1]->tile<=5 )
+    {
+        qDebug() << "One Star-2";
+        int color= grille[row1][col1]->tile;
+        grille[row2][col2]->tile=grille[row1][col1]->tile;
+        grille[row1][col1]->tile=0;
+        for (int i=0; i<10; i++)
+        {
+            for (int j=0; j<10; j++)
+            {
+                if (grille[i][j]->tile/10==color || grille[i][j]->tile==color)
+                    grille[i][j]->tile=0;
+            }
+        }qqch=true;
+    }
+    return qqch;
+}
+
+bool MainWindow::checkStar(int row, int col)
+{
+    int returnValue;
+    bool qqch=false;
+
+    Destroy *e= new Selection5_V;
+    returnValue= e->condition(grille, grille[row][col]);
+
+    if (returnValue)
+    {
+        switch(returnValue){
+        case 1:
+            e->selection(grille,grille[row][col],1);
+            qqch=true;break;
+        case 2:
+            e->selection(grille,grille[row][col],2);
+            qqch=true;break;
+        case 3:
+            e->selection(grille,grille[row][col],3);
+            qqch=true;break;
+        case 4:
+            e->selection(grille,grille[row][col],4);
+            qqch=true;break;
+
         }
-        if(grille[row2][col2]->tile==5){
-            destroy=new Selection_Color;
-            destroy->elimination(grille,grille[row1][col1]);
-            delete destroy;
-            return true;
+    }
+    delete e;
+    return qqch;
+}
+
+bool MainWindow::checkBox(int row, int col)
+{
+    int returnValue;
+    bool qqch=false;
+
+    Destroy *e= new Selection_block;
+    returnValue= e->condition(grille, grille[row][col]);
+
+    if (returnValue)
+    {
+        switch(returnValue){
+        case 1:
+            e->selection(grille,grille[row][col],1);
+            qqch=true;break;
+        case 2:
+            e->selection(grille,grille[row][col],2);
+            qqch=true;break;
+        case 3:
+            e->selection(grille,grille[row][col],3);
+            qqch=true;break;
+        case 4:
+            e->selection(grille,grille[row][col],4);
+            qqch=true;break;
+        case 5:
+            e->selection(grille,grille[row][col],5);
+            qqch=true;break;
+        case 6:
+            e->selection(grille,grille[row][col],6);
+            qqch=true;break;
+        case 7:
+            e->selection(grille,grille[row][col],7);
+            qqch=true;break;
+        case 8:
+            e->selection(grille,grille[row][col],8);
+            qqch=true;break;
+        case 9:
+            e->selection(grille,grille[row][col],9);
+            qqch=true;break;
+        case 10:
+            e->selection(grille,grille[row][col],10);
+            qqch=true;break;
+        case 11:
+            e->selection(grille,grille[row][col],11);
+            qqch=true;break;
+        case 12:
+            e->selection(grille,grille[row][col],12);
+            qqch=true;break;
+        case 13:
+            e->selection(grille,grille[row][col],13);
+            qqch=true;break;
+        case 14:
+            e->selection(grille,grille[row][col],14);
+            qqch=true;break;
+        case 15:
+            e->selection(grille,grille[row][col],15);
+            qqch=true;break;
+        case 16:
+            e->selection(grille,grille[row][col],16);
+            qqch=true;break;
         }
-    }// end check destroy one color
+    }
+    delete e;
+    return qqch;
+}
 
-    // check spawn power bomb
-    noChange[0]=Check5_V(row1,col1);
-    noChange[1]=Check5_V(row2,col2);
-    // end check spawn power bomb
+bool MainWindow::checkLine(int row, int col)
+{
+    int returnValue;
+    bool qqch=false;
 
-    // check spawn bomb
-    noChange[2]= Check5_H(row1,col1);
-    noChange[3]= Check5_H(row2,col2);
-    // end check spawn bomb
+    Destroy *e= new Selection4_V;
+    returnValue= e->condition(grille, grille[row][col]);
 
-    // check spawn vertical bomb
-    noChange[4]=Check4_V(row1,col1);
-    noChange[5]=Check4_V(row2,col2);
-    // end check spawn vertical bomb
+    if (returnValue)
+    {
+        switch(returnValue){
+        case 1:
+            e->selection(grille,grille[row][col],1);
+            qqch=true;break;
+        case 2:
+            e->selection(grille,grille[row][col],2);
+            qqch=true;break;
+        case 3:
+            e->selection(grille,grille[row][col],3);
+            qqch=true;break;
+        case 4:
+            e->selection(grille,grille[row][col],4);
+            qqch=true;break;
+        case 5:
+            e->selection(grille,grille[row][col],5);
+            qqch=true;break;
+        case 6:
+            e->selection(grille,grille[row][col],6);
+            qqch=true;break;
+        case 7:
+            e->selection(grille,grille[row][col],7);
+            qqch=true;break;
+        case 8:
+            e->selection(grille,grille[row][col],8);
+            qqch=true;break;
+        }
+    }
+    delete e;
+    return qqch;
+}
 
-    // check spawn horizontal bomb
-    noChange[6]=Check4_H(row1,col1);
-    noChange[7]=Check4_H(row2,col2);
-    // end check spawn horizontal bomb
+bool MainWindow::checkHorThree(int row, int col)
+{
+    int returnValue;
+    bool qqch=false;
 
-    // check destroy vertical 3
-    noChange[8]=Check3_V(row1,col1);
-    noChange[9]=Check3_V(row2,col2);
-    // end check destroy horizontal 3
+    Destroy *e= new Selection3_H;
+    returnValue= e->condition(grille, grille[row][col]);
 
-    // check destroy vertical 3
-    noChange[10]=Check3_H(row1,col1);
-    noChange[11]=Check3_H(row2,col2);
-    // end check destroy horizontal 3
+    if (returnValue)
+    {
+        switch(returnValue){
+        case 1:
+            e->selection(grille,grille[row][col],1);
+            qqch=true;break;
+        case 2:
+            e->selection(grille,grille[row][col],2);
+            qqch=true;break;
+        case 3:
+            e->selection(grille,grille[row][col],3);
+            qqch=true;break;
+        case 4:
+            e->selection(grille,grille[row][col],4);
+            qqch=true;break;
+        case 5:
+            e->selection(grille,grille[row][col],5);
+            qqch=true;break;
+        case 6:
+            e->selection(grille,grille[row][col],6);
+            qqch=true;break;
+        }
+    }
+    delete e;
+    return qqch;
+}
 
-    for(int i=0;i<12;i++){
-        if(noChange[i]==true)
-            return true;
+bool MainWindow::checkVerThree(int row, int col)
+{
+    int returnValue;
+    bool qqch=false;
+
+    Destroy *e= new Selection3_V;
+    returnValue= e->condition(grille, grille[row][col]);
+
+    if (returnValue)
+    {
+        switch(returnValue){
+        case 1:
+            e->selection(grille,grille[row][col],1);
+            qqch=true;break;
+        case 2:
+            e->selection(grille,grille[row][col],2);
+            qqch=true;break;
+        case 3:
+            e->selection(grille,grille[row][col],3);
+            qqch=true;break;
+        case 4:
+            e->selection(grille,grille[row][col],4);
+            qqch=true;break;
+        case 5:
+            e->selection(grille,grille[row][col],5);
+            qqch=true;break;
+        case 6:
+            e->selection(grille,grille[row][col],6);
+            qqch=true;break;
+        }
+    }
+    delete e;
+    return qqch;
+}
+
+bool MainWindow::remplirVide()
+{
+    for (int i=9; i>=0; i--)
+    {
+        for (int j=9; j>=0; j--)
+        {
+            if (grille[i][j]->tile==0)
+            {
+                for (int k=i; k>=0; k--)
+                {
+                    if (grille[k][j]->tile!=0)
+                    {
+                        grille[i][j]->tile=grille[k][j]->tile;
+                        grille[k][j]->tile=0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool MainWindow::peuEtreDetruit()
+{
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            if (checkStar(i, j)==true)
+                return true;
+        }
+    }
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            if (checkBox(i, j)==true)
+                return true;
+        }
+    }
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            if (checkLine(i, j)==true)
+                return true;
+        }
+    }
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            if (checkHorThree(i, j)==true)
+                return true;
+        }
+    }
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            if (checkVerThree(i, j)==true)
+                return true;
+        }
     }
     return false;
 }
 
-bool MainWindow::Check3_H(int row, int col)
+bool MainWindow::cannotPlay()
 {
-    int return_value;
-    bool AnySpawn = false;
-    destroy = new Selection3_H; //H
-    return_value=destroy->condition(grille,grille[row][col]);
-    if(return_value){
-        switch(return_value){
-        case 1: // leftest normal component
-            destroy->selection(grille,grille[row][col],1);
-            AnySpawn=true;
-            break;
-        case 2: // middle normal component
-            destroy->selection(grille,grille[row][col],2);
-            AnySpawn=true;
-            break;
-        case 3: // rightest special component
-            destroy->selection(grille,grille[row][col],3);
-            AnySpawn=true;
-            break;
-        case 4: // leftest special component
-            destroy->selection(grille,grille[row][col],4);
-            AnySpawn=true;
-            break;
-        case 5: // middle special component
-            destroy->selection(grille,grille[row][col],5);
-            AnySpawn=true;
-            break;
-        case 6: // rightest special component
-            destroy->selection(grille,grille[row][col],6);
-            AnySpawn=true;
-            break;
-        default:
-            qDebug()<<"Check3_H error";
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            if (grille[i][j]->tile==5) return false;
+        }
+    }//check for existing stars
+
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<9; j++)
+        {
+            qDebug() << "In check horizontally";
+            qDebug() << grille[i][j]->tile;
+            int temp=0;
+            temp=grille[i][j]->tile;
+            grille[i][j]->tile=grille[i][j+1]->tile;
+            grille[i][j+1]->tile=temp;
+            if (checkVerThree(i,j) || checkHorThree(i,j+1))
+            {
+                temp=grille[i][j]->tile;
+                grille[i][j]->tile=grille[i][j+1]->tile;
+                grille[i][j+1]->tile=temp;
+            }
+
+            temp=grille[i][j]->tile;
+            grille[i][j]->tile=grille[i][j+1]->tile;
+            grille[i][j+1]->tile=temp;
+            qDebug() << grille[i][j]->tile << "Out check horizontally" ;
         }
     }
-    delete destroy;
-    return AnySpawn;
 
+    for (int i=0; i<9; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            qDebug() << "In check vertically";
+            qDebug() << grille[i][j]->tile;
+            int temp=0;
+            temp=grille[i][j]->tile;
+            grille[i][j]->tile=grille[i+1][j]->tile;
+            grille[i+1][j]->tile=temp;
+            if (checkVerThree(i,j)==true)
+            {
+                grille[i+1][j]->tile=grille[i][j]->tile;
+                grille[i][j]->tile=temp;
+                qDebug() << "ver" << grille[i][j]->tile;
+                return false;
+            }
+            if (checkHorThree(i,j)==true)
+            {
+                grille[i+1][j]->tile=grille[i][j]->tile;
+                grille[i][j]->tile=temp;
+                qDebug() << "hor" << grille[i][j]->tile;
+                return false;
+            }
+            grille[i+1][j]->tile=grille[i][j]->tile;
+            grille[i][j]->tile=temp;
+            qDebug() <<grille[i][j]->tile << "Out check vertically" ;
+        }
+    }
+    qDebug() << "Cannot play==true";
+    return true;
 }
 
-bool MainWindow::Check3_V(int row, int col)
+void MainWindow::fillInZero()
 {
-
-    int return_value;
-    bool AnySpawn=false;
-    destroy=new Selection3_V;
-    return_value=destroy->condition(grille,grille[row][col]);
-    if(return_value){
-        switch(return_value){
-        case 1: // leftest normal component
-            destroy->selection(grille,grille[row][col],1);
-            AnySpawn=true;
-            break;
-        case 2: // middle normal component
-            destroy->selection(grille,grille[row][col],2);
-            AnySpawn=true;
-            break;
-        case 3: // rightest special component
-            destroy->selection(grille,grille[row][col],3);
-            AnySpawn=true;
-            break;
-        case 4: // leftest special component
-            destroy->selection(grille,grille[row][col],4);
-            AnySpawn=true;
-            break;
-        case 5: // middle special component
-            destroy->selection(grille,grille[row][col],5);
-            AnySpawn=true;
-            break;
-        case 6: // rightest special component
-            destroy->selection(grille,grille[row][col],6);
-            AnySpawn=true;
-            break;
-        default:
-            qDebug()<<"Check3_V error";
+    for (int i=9; i>=0; i--)
+    {
+        for (int j=9; j>=0; j--)
+        {
+            if (grille[i][j]->tile==0)
+            {
+                grille[i][j]->setNumber();
+                if (j<=7 && (grille[i][j]->tile==grille[i][j+1]->tile || grille[i][j]->tile==grille[i][j+1]->tile/10) && (grille[i][j]->tile==grille[i][j+2]->tile || grille[i][j]->tile==grille[i][j+2]->tile/10))
+                {
+                    grille[i][j]->tile=0;
+                    j++;
+                }//檢查右邊
+                if (j>=2 && (grille[i][j]->tile==grille[i][j-1]->tile || grille[i][j]->tile==grille[i][j-1]->tile/10) && (grille[i][j]->tile==grille[i][j-2]->tile || grille[i][j]->tile==grille[i][j-2]->tile/10))
+                {
+                    grille[i][j]->tile=0;
+                    j++;
+                }//檢查左邊
+                if (i<=7 && (grille[i][j]->tile==grille[i+1][j]->tile || grille[i][j]->tile==grille[i+1][j]->tile/10) && (grille[i][j]->tile==grille[i+2][j]->tile || grille[i][j]->tile==grille[i+2][j]->tile/10))
+                {
+                    grille[i][j]->tile=0;
+                    j++;
+                }//檢查下面
+                if (j>=1 && j<=8 && (grille[i][j]->tile==grille[i][j-1]->tile || grille[i][j]->tile==grille[i][j-1]->tile/10) && (grille[i][j]->tile==grille[i][j+1]->tile || grille[i][j]->tile==grille[i][j+1]->tile/10))
+                {
+                    grille[i][j]->tile=0;
+                    j++;
+                }
+            }
         }
     }
-    delete destroy;
-    return AnySpawn;
-}
-
-void MainWindow::setCandySelected(Grille* grille)
-{
-    // 1 red, 2 yellow, 3 green, 4 blue
-    if(!isSelected){
-        switch(grille->tile){
-            case 1:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/red_clicked.png")));
-                break;
-            case 11:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/red_vertical_bomb_clicked.png")));
-                break;
-            case 12:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/red_horizontal_bomb_clicked.png")));
-                break;
-            case 13:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/red_bomb_clicked.png")));
-                break;
-            case 2:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_clicked.png")));
-                break;
-            case 21:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_vertical_bomb_clicked.png")));
-                break;
-            case 22:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_horizontal_bomb_clicked.png")));
-                break;
-            case 23:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/yellow_bomb_clicked.png")));
-                break;
-            case 3:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/green_clicked.png")));
-                break;
-            case 31:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/green_vertical_bomb_clicked.png")));
-                break;
-            case 32:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/green_horizontal_bomb_clicked.png")));
-                break;
-            case 33:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/green_bomb_clicked.png")));
-                break;
-            case 4:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/blue_clicked.png")));
-                break;
-            case 41:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/blue_vertical_bomb_clicked.png")));
-                break;
-            case 42:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/blue_horizontal_bomb_clicked.png")));
-                break;
-            case 43:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/blue_bomb_clicked.png")));
-                break;
-            case 5:
-                grille->button->setIcon(QIcon(QPixmap(":/pic/power_bomb_clicked.png")));
-                break;
-        }
-    }
-    else{
-        grille->setCandy();
-    }
-    return;
-}
-
-bool MainWindow::Check5_H(int row, int col)
-{
-    int return_value;
-    bool AnySpawn=false;
-    destroy=new Selection5_H;
-    return_value=destroy->condition(grille,grille[row][col]);
-    if(return_value){
-        switch(return_value){
-        case 1: // vertical normal component
-            destroy->selection(grille,grille[row][col],1);
-            AnySpawn=true;
-            break;
-        case 2: // horizontal normal component
-            destroy->selection(grille,grille[row][col],2);
-            AnySpawn=true;
-            break;
-        case 3: // vertical special component
-            destroy->selection(grille,grille[row][col],3);
-            AnySpawn=true;
-            break;
-        case 4: // horizontal special component
-            destroy->selection(grille,grille[row][col],4);
-            AnySpawn=true;
-            break;
-        default:
-            qDebug()<<"Check5_H error";
-        }
-    }
-    delete destroy;
-    return AnySpawn;
-}
-
-bool MainWindow::Check5_V (int row, int col)
-{
-    int return_value;
-    bool AnySpawn=false;
-    destroy=new Selection5_V;
-    return_value=destroy->condition(grille,grille[row][col]);
-    if(return_value){
-        switch(return_value){
-        case 1: // left up normal component
-            destroy->selection(grille,grille[row][col],1);
-            AnySpawn=true;
-            break;
-        case 2: // left down normal component
-            destroy->selection(grille,grille[row][col],2);
-            AnySpawn=true;
-            break;
-        case 3: // right up normal component
-            destroy->selection(grille,grille[row][col],3);
-            AnySpawn=true;
-            break;
-        case 4: // right down normal component
-            destroy->selection(grille,grille[row][col],4);
-            AnySpawn=true;
-            break;
-        case 5: // left T normal component
-            destroy->selection(grille,grille[row][col],5);
-            AnySpawn=true;
-            break;
-        case 6: // right T normal component
-            destroy->selection(grille,grille[row][col],6);
-            AnySpawn=true;
-            break;
-        case 7: // up T normal component
-            destroy->selection(grille,grille[row][col],7);
-            AnySpawn=true;
-            break;
-        case 8: // down T normal component
-            destroy->selection(grille,grille[row][col],8);
-            AnySpawn=true;
-            break;
-        case 9: // left up special component
-            destroy->selection(grille,grille[row][col],9);
-            AnySpawn=true;
-            break;
-        case 10: // left down special component
-            destroy->selection(grille,grille[row][col],10);
-            AnySpawn=true;
-            break;
-        case 11: // right up special component
-            destroy->selection(grille,grille[row][col],11);
-            AnySpawn=true;
-            break;
-        case 12: // right down special component
-            destroy->selection(grille,grille[row][col],12);
-            AnySpawn=true;
-            break;
-        case 13: // left T special component
-            destroy->selection(grille,grille[row][col],13);
-            AnySpawn=true;
-            break;
-        case 14: // right T special component
-            destroy->selection(grille,grille[row][col],14);
-            AnySpawn=true;
-            break;
-        case 15: // up T special component
-            destroy->selection(grille,grille[row][col],15);
-            AnySpawn=true;
-            break;
-        case 16: // down T special component
-            destroy->selection(grille,grille[row][col],16);
-            AnySpawn=true;
-            break;
-        default:
-            qDebug()<<"Check5_v error";
-        }
-    }
-    delete destroy;
-    return AnySpawn;
-}
-
-bool MainWindow::Check4_V(int row, int col)
-{
-    int return_value;
-    bool AnySpawn=false;
-    destroy=new Selection4_V;
-
-    return_value=destroy->condition(grille,grille[row][col]);
-    if(return_value){
-        switch(return_value){
-        case 1: // O normal component
-                // X
-                // O
-                // O
-            destroy->selection(grille,grille[row][col],1);
-            AnySpawn=true;
-            break;
-        case 2: // O normal component
-                // O
-                // X
-                // O
-            destroy->selection(grille,grille[row][col],2);
-            AnySpawn=true;
-            break;
-        case 3: // O special component
-                // X
-                // O
-                // O
-            destroy->selection(grille,grille[row][col],3);
-            AnySpawn=true;
-            break;
-        case 4: // O special component
-                // O
-                // X
-                // O
-            destroy->selection(grille,grille[row][col],4);
-            AnySpawn=true;
-            break;
-        default:
-            qDebug()<<"Check4_v error";
-        }
-    }
-    delete destroy;
-    return AnySpawn;
-}
-
-
-bool MainWindow::Check4_H(int row, int col)
-{
-    int return_value;
-    bool AnySpawn=false;
-    destroy=new Selection4_H;
-    return_value=destroy->condition(grille,grille[row][col]);
-    if(return_value){
-        switch(return_value){
-        case 1: // OXOO normal component
-            destroy->selection(grille,grille[row][col],1);
-            AnySpawn=true;
-            break;
-        case 2: // OOXO normal component
-            destroy->selection(grille,grille[row][col],2);
-            AnySpawn=true;
-            break;
-        case 3: // OOXO special component
-            destroy->selection(grille,grille[row][col],3);
-            AnySpawn=true;
-            break;
-        case 4: // OOXO special component
-            destroy->selection(grille,grille[row][col],4);
-            AnySpawn=true;
-            break;
-        default:
-            qDebug()<<"Check4_H error";
-        }
-    }
-    delete destroy;
-    return AnySpawn;
 }
 
 void MainWindow::refreshCandy()
 {
-    for(int i=0; i<10; i++)
-        for(int j=0; j<10; j++)
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
             grille[i][j]->setCandy();
+        }
+    }
 }
 
-bool MainWindow::effacerLesPossibilites()
+void MainWindow::resetMap()
 {
-    bool possibilite=false; //#still can eliminate
+    qDebug() << "In reset map";
 
-    for(int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(possibilite= Check5_H(i,j))return true;
+    //Initialize all the blocks
+    for (int i=0; i<10; i++)
+    {
+        for (int j=0; j<10; j++)
+        {
+            grille[i][j]->tile=0;
         }
     }
 
-    for(int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(possibilite= Check5_V(i,j))return true;
+    for(int i=0; i<10; i++)//row
+    {
+        for (int j=0; j<10; j++)//column
+        {
+            grille[i][j]->setNumber();
+            grille[i][j]->setCandy();
+
+            if (j>=2 && (grille[i][j]->tile == grille[i][j-2]->tile) && (grille[i][j]->tile == grille[i][j-1]->tile))
+            {j--;}
+
+            if (i>=2 && (grille[i][j]->tile == grille[i-2][j]->tile) && (grille[i][j]->tile == grille[i-1][j]->tile))
+            {j--;}
         }
     }
 
-    for(int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(possibilite= Check4_V(i,j))return true;
-        }
-    }
-
-    for(int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(possibilite = Check4_H(i,j))return true;
-        }
-    }
-
-    for(int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(possibilite = Check3_V(i,j))return true;
-        }
-    }
-
-    for(int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(possibilite= Check3_H(i,j))return true;
-        }
-    }
-
-    return possibilite;
+    if (cannotPlay()==true){resetMap();}
 }
 
-void MainWindow::remplirVide() //Move Fillzero
+
+void MainWindow::button_clicked(int R, int C)
 {
-    // move all blocks to fill in zeros
-    for(int i=9;i>=0;i--){
-        for(int j=9;j>=0;j--){
-            for(int k=i-1;k>=0;k--){
-                if(i!=0&&grille[i][j]->tile==0&&grille[k][j]->tile!=0){
-                    grille[i][j]->tile= grille[k][j]->tile;
-                    grille[k][j]->tile=0;
-                }
+    qDebug() << grille[R][C]->tile;
+
+    if (!isClicked)
+    {
+        setClickPicture(grille[R][C]);
+        isClicked=true;
+        rowBackUp= R;
+        colBackUp= C;
+    }
+    else
+    {
+        if (rowBackUp==R && colBackUp==C-1)//left
+        {
+            *grille[rowBackUp][colBackUp]-grille[R][C];
+            if (!check(rowBackUp,colBackUp,R,C))
+            {
+                *grille[R][C]-grille[rowBackUp][colBackUp];
             }
         }
-    } // end move
-}
-
-void MainWindow::selectionApresElimination()
-{
-    // spawn new number for zeros
-    for(int i=9;i>=0;i--){
-        for(int j=9;j>=0;j--){
-            if(grille[i][j]->tile==0){
-                grille[i][j]->setNumber();
-                if(j>=2&&(grille[i][j]->tile==grille[i][j-2]->tile)&&(grille[i][j]->tile==grille[i][j-1]->tile)){
-                    grille[i][j]->tile=0;
-                    j++;
-                }//left condition
-                else if(j<=7&&(grille[i][j]->tile==grille[i][j+1]->tile)&&(grille[i][j]->tile==grille[i][j+2]->tile)){
-                    grille[i][j]->tile=0;
-                    j++;
-                }//right condition
-                else if(i<=7&&(grille[i][j]->tile==grille[i+1][j]->tile)&&(grille[i][j]->tile==grille[i+2][j]->tile)){
-                    grille[i][j]->tile=0;
-                    j++;
-                }//down condition
-                else if(j>=1&&j<=8&&(grille[i][j]->tile==grille[i][j-1]->tile)&&(grille[i][j]->tile==grille[i][j+1]->tile)){
-                    grille[i][j]->tile=0;
-                    j++;
-                }//middle condition
+        else if (rowBackUp==R && colBackUp==C+1)//right
+        {
+            *grille[R][C]-grille[rowBackUp][colBackUp];
+            if (!check(rowBackUp,colBackUp,R,C))
+            {
+                *grille[rowBackUp][colBackUp]-grille[R][C];
             }
         }
-    }// end spawn
-    refreshCandy();
+        else if (rowBackUp==R-1 && colBackUp==C)//up
+        {
+            *grille[rowBackUp][colBackUp]|grille[R][C];
+            if (!check(rowBackUp,colBackUp,R,C))
+            {
+                *grille[R][C]|grille[rowBackUp][colBackUp];
+            }
+        }
+        else if (rowBackUp==R+1 && colBackUp==C)//down
+        {
+            *grille[R][C]|grille[rowBackUp][colBackUp];
+            if (!check(rowBackUp,colBackUp,R,C))
+            {
+                *grille[rowBackUp][colBackUp]|grille[R][C];
+            }
+        }
+        else
+        {
+            setClickPicture(grille[rowBackUp][colBackUp]);
+        }
+        isClicked=false;
+    }
 }
 
 void MainWindow::foo()
 {
-    refreshCandy();
+    while(1)
+    {
+       remplirVide();
+       if (peuEtreDetruit()==false) break;
+    }
+
+    fillInZero();
+     refreshCandy();
+}
+
+
+
+void MainWindow::on_restartGame_clicked()
+{
+    gameStart();
+}
+
+void MainWindow::on_quitGame_clicked()
+{
+    QApplication::quit();
 }

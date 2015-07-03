@@ -4,168 +4,304 @@
 #include "destroy.h"
 #include "destroy_vertical.h"
 #include "destroy_horizontal.h"
-#include "selection_block.h"
+#include "Selection_block.h"
 
 Selection4_V::Selection4_V()
 {
 
 }
 
-void Selection4_V::selection(Grille *grille[N][N],Grille * clicked,int mode)
+void Selection4_V::selection(Grille *grille[N][N],Grille * focus,int mode)
 {
-    int row =clicked->row;
-    int col =clicked->col;
-    int num =clicked->tile;
-    int FourNum[4]={0};
-    Destroy * d;
+       int row= focus->row;
+       int col= focus->col;
+       int num= focus->tile;
+       int FourNum[4]={0};
 
-    switch(mode){
-    case 1: // O normal component
-            // X
-            // O
-            // O
+       switch(mode){
+       case 1://I1 without bomb
+           focus->tile =focus->tile*N+1;
 
-        clicked->tile=clicked->tile*N+1;
+           //check for bomb with in the 5 blocks
+           if (grille[row-1][col]->tile/N != 0)
+               FourNum[0]= grille[row-1][col]->tile%N;
+           FourNum[1]=grille[row][col]->tile;
+           if (grille[row+1][col]->tile/N != 0)
+               FourNum[2]= grille[row+1][col]->tile%N;
+           if (grille[row+2][col]->tile/N != 0)
+               FourNum[3]= grille[row+2][col]->tile%N;
 
-        if(grille[row-1][col]->tile/N!=0)FourNum[0]=grille[row-1][col]->tile%N;
-        FourNum[1]=grille[row][col]->tile;
-        if(grille[row+1][col]->tile/N!=0)FourNum[2]=grille[row+1][col]->tile%N;
-        if(grille[row+2][col]->tile/N!=0)FourNum[3]=grille[row+2][col]->tile%N;
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
 
-        for(int i=0;i<4;i++){
-            switch(FourNum[i]){
-            case 0:
-                grille[row-1+i][col]->tile=0;
-                break;
-            case 1:
-                d=new DestroyVertical;
-                d->elimination(grille,grille[row-1+i][col]);
-                delete d;
-                break;
-            case 2:
-                d=new DestroyHorizontal;
-                d->elimination(grille,grille[row-1+i][col]);
-                delete d;
-                break;
-            case 3:
-                d=new Selection_block;
-                d->elimination(grille,grille[row-1+i][col]);
-                delete d;
-                break;
-            }
-        }
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row-1+i][col]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row-1+i][col]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row-1+i][col]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row-1+i][col]);
+                   delete e;break;
+               }
+           }break;
 
-        break;
-    case 2: // O normal component
-            // O
-            // X
-            // O
+       case 2://I2 without bomb
+           focus->tile=focus->tile*N+1;
 
-        clicked->tile=clicked->tile*N+1;
+           //check for bomb with in the 5 blocks
+           if (grille[row-2][col]->tile/N != 0)
+               FourNum[0]= grille[row-2][col]->tile%N;
+           if (grille[row-1][col]->tile/N != 0)
+               FourNum[1]= grille[row-1][col]->tile%N;
+           FourNum[2]=grille[row][col]->tile;
+           if (grille[row+1][col]->tile/N != 0)
+               FourNum[3]= grille[row+1][col]->tile%N;
 
-        if(grille[row-2][col]->tile/N!=0)FourNum[0]=grille[row-2][col]->tile%N;
-        if(grille[row-1][col]->tile/N!=0)FourNum[1]=grille[row-1][col]->tile%N;
-        FourNum[2]=grille[row][col]->tile;
-        if(grille[row+1][col]->tile/N!=0)FourNum[3]=grille[row+1][col]->tile%N;
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
 
-        for(int i=0;i<4;i++){
-            switch(FourNum[i]){
-            case 0:
-                grille[row-2+i][col]->tile=0;
-                break;
-            case 1:
-                d=new DestroyVertical;
-                d->elimination(grille,grille[row-2+i][col]);
-                delete d;
-                break;
-            case 2:
-                d=new DestroyHorizontal;
-                d->elimination(grille,grille[row-2+i][col]);
-                delete d;
-                break;
-            case 3:
-                d=new Selection_block;
-                d->elimination(grille,grille[row-2+i][col]);
-                delete d;
-                break;
-            }
-        }
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row-2+i][col]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row-2+i][col]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row-2+i][col]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row-2+i][col]);
+                   delete e;break;
+               }
+           }break;
 
-        break;
-    case 3: // O special component
-            // X
-            // O
-            // O
+       case 3://I3 without bomb
+           focus->tile=focus->tile*N+2;
 
-        if(grille[row-1][col]->tile/N!=0)FourNum[0]=grille[row-1][col]->tile%N;
-        FourNum[1]=grille[row][col]->tile%N;
-        if(grille[row+1][col]->tile/N!=0)FourNum[2]=grille[row+1][col]->tile%N;
-        if(grille[row+2][col]->tile/N!=0)FourNum[3]=grille[row+2][col]->tile%N;
+           //check for bomb with in the 5 blocks
+           if (grille[row][col-1]->tile/N != 0)
+               FourNum[0]= grille[row][col-1]->tile%N;
+           FourNum[1]=grille[row][col]->tile;
+           if (grille[row][col+1]->tile/N != 0)
+               FourNum[2]= grille[row][col+1]->tile%N;
+           if (grille[row][col+2]->tile/N != 0)
+               FourNum[3]= grille[row][col+2]->tile%N;
 
-        for(int i=0;i<4;i++){
-            switch(FourNum[i]){
-            case 0:
-                grille[row-1+i][col]->tile=0;
-                break;
-            case 1:
-                d=new DestroyVertical;
-                d->elimination(grille,grille[row-1+i][col]);
-                delete d;
-                break;
-            case 2:
-                d=new DestroyHorizontal;
-                d->elimination(grille,grille[row-1+i][col]);
-                delete d;
-                break;
-            case 3:
-                d=new Selection_block;
-                d->elimination(grille,grille[row-1+i][col]);
-                delete d;
-                break;
-            }
-        }
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
 
-        break;
-    case 4: // O special component
-            // O
-            // X
-            // O
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row][col-1+i]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row][col-1+i]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row][col-1+i]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row][col-1+i]);
+                   delete e;break;
+               }
+           }break;
 
-        if(grille[row-2][col]->tile/N!=0)FourNum[0]=grille[row-2][col]->tile%N;
-        if(grille[row-1][col]->tile/N!=0)FourNum[1]=grille[row-1][col]->tile%N;
-        FourNum[2]=grille[row][col]->tile%N;
-        if(grille[row+1][col]->tile/N!=0)FourNum[3]=grille[row+1][col]->tile%N;
+       case 4://I4 without bomb
+           focus->tile=focus->tile*N+2;
 
-        for(int i=0;i<4;i++){
-            switch(FourNum[i]){
-            case 0:
-                grille[row-2+i][col]->tile=0;
-                break;
-            case 1:
-                d=new DestroyVertical;
-                d->elimination(grille,grille[row-2+i][col]);
-                delete d;
-                break;
-            case 2:
-                d=new DestroyHorizontal;
-                d->elimination(grille,grille[row-2+i][col]);
-                delete d;
-                break;
-            case 3:
-                d=new Selection_block;
-                d->elimination(grille,grille[row-2+i][col]);
-                delete d;
-                break;
-            }
-        }
+           //check for bomb with in the 5 blocks
+           if (grille[row][col-2]->tile/N != 0)
+               FourNum[0]= grille[row][col-2]->tile%N;
+           if (grille[row][col-1]->tile/N != 0)
+               FourNum[1]= grille[row][col-1]->tile%N;
+           FourNum[2]=grille[row][col]->tile;
+           if (grille[row][col+1]->tile/N != 0)
+               FourNum[3]= grille[row][col+1]->tile%N;
 
-        break;
-    default:
-        qDebug()<<"Spawn horizontal bomb error";
-    }
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
+
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row][col-2+i]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row][col-2+i]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row][col-2+i]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row][col-2+i]);
+                   delete e;break;
+               }
+           }break;
+
+       case 5://I1 with bomb
+           num=num/N;
+
+           //check for bomb with in the 5 blocks
+           if (grille[row-1][col]->tile/N != 0)
+               FourNum[0]= grille[row-1][col]->tile%N;
+           FourNum[1]=grille[row][col]->tile%N;
+           if (grille[row+1][col]->tile/N != 0)
+               FourNum[2]= grille[row+1][col]->tile%N;
+           if (grille[row+2][col]->tile/N != 0)
+               FourNum[3]= grille[row+2][col]->tile%N;
+
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
+
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row-1+i][col]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row-1+i][col]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row-1+i][col]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row-1+i][col]);
+                   delete e;break;
+               }
+           }break;
+
+       case 6://I2 with bomb
+           num=num/N;
+
+           //check for bomb with in the 5 blocks
+           if (grille[row-2][col]->tile/N != 0)
+               FourNum[0]= grille[row-2][col]->tile%N;
+           if (grille[row-1][col]->tile/N != 0)
+               FourNum[1]= grille[row-1][col]->tile%N;
+           FourNum[2]=grille[row][col]->tile%N;
+           if (grille[row+1][col]->tile/N != 0)
+               FourNum[3]= grille[row+1][col]->tile%N;
+
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
+
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row-2+i][col]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row-2+i][col]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row-2+i][col]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row-2+i][col]);
+                   delete e;break;
+               }
+           }break;
+
+       case 7://I3 with bomb
+           num=num/N;
+
+           //check for bomb with in the 5 blocks
+           if (grille[row][col-1]->tile/N != 0)
+               FourNum[0]= grille[row][col-1]->tile%N;
+           FourNum[1]=grille[row][col]->tile%N;
+           if (grille[row][col+1]->tile/N != 0)
+               FourNum[2]= grille[row][col+1]->tile%N;
+           if (grille[row][col+2]->tile/N != 0)
+               FourNum[3]= grille[row][col+2]->tile%N;
+
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
+
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row][col-1+i]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row][col-1+i]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row][col-1+i]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row][col-1+i]);
+                   delete e;break;
+               }
+           }break;
+
+       case 8://I4 with bomb
+           num=num/N;
+
+           //check for bomb with in the 5 blocks
+           if (grille[row][col-2]->tile/N != 0)
+               FourNum[0]= grille[row][col-2]->tile%N;
+           if (grille[row][col-1]->tile/N != 0)
+               FourNum[1]= grille[row][col-1]->tile%N;
+           FourNum[2]=grille[row][col]->tile%N;
+           if (grille[row][col+1]->tile/N != 0)
+               FourNum[3]= grille[row][col+1]->tile%N;
+
+           //check for the bomb and then Destroy them
+           for (int i=0; i<4; i++)
+           {
+               Destroy *e;
+
+               switch(FourNum[i]){
+               case 0://歸零
+                   grille[row][col-2+i]->tile=0;break;
+               case 1://爆
+                   e= new DestroyVertical;
+                   e->elimination(grille, grille[row][col-2+i]);
+                   delete e;break;
+               case 2://爆
+                   e= new DestroyHorizontal;
+                   e->elimination(grille,grille[row][col-2+i]);
+                   delete e;break;
+               case 3://爆
+                   e= new Selection_block;
+                   e->elimination(grille,grille[row][col-2+i]);
+                   delete e;break;
+               }
+           }break;
+       }
 }
 
-void Selection4_V::elimination(Grille *grille[N][N],Grille * clicked)
+void Selection4_V::elimination(Grille *grille[N][N],Grille * focus)
 {
     // garbage function
 }

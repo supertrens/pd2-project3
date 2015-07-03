@@ -7,6 +7,9 @@
 #include <QLabel>
 
 #define N 10
+#define NUM_COOKIE 4
+#define WIDTH  col*50 + 50
+#define HEIGHT row*50 + 50
 
 class Grille : public QObject
 {

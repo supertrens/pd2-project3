@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QTimer>
 
-#define NUM_COOKIE 4
+
 
 Grille::Grille(QWidget *parent, int Row, int Col) : QObject(parent),
     row(Row),col(Col),deplacer(1)
@@ -12,7 +12,7 @@ Grille::Grille(QWidget *parent, int Row, int Col) : QObject(parent),
     //button->setFlat(true);
     //clicked=false;
     connect(button,SIGNAL(clicked()),this,SLOT(click()));
-     button->setGeometry((col)*50,(row)*50,50,50);
+     button->setGeometry(WIDTH, HEIGHT,50,50);
     //button->setIconSize(button->size());
 }
 
@@ -34,55 +34,72 @@ void Grille::setCandy()
     // 1 red, 2 yellow, 3 green, 4 blue
     switch(tile){
         case 1:
-            button->setIcon(QIcon(QPixmap(":/pic/Cupcake.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Cupcake.png")));
+             button->setIconSize(button->size());
             break;
         case 11:
-            button->setIcon(QIcon(QPixmap(":/pic/red_vertical_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Cupcake_vertical.png")));
+             button->setIconSize(button->size());
             break;
         case 12:
-            button->setIcon(QIcon(QPixmap(":/pic/red_horizontal_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Cupcake_horizontal.png")));
+             button->setIconSize(button->size());
             break;
         case 13:
-            button->setIcon(QIcon(QPixmap(":/pic/red_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Cupcake_bomb.png")));
+             button->setIconSize(button->size());
             break;
         case 2:
-            button->setIcon(QIcon(QPixmap(":/pic/Croissant.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Croissant.png")));
+             button->setIconSize(button->size());
             break;
         case 21:
-            button->setIcon(QIcon(QPixmap(":/pic/yellow_vertical_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Croissant_horizontal.png")));
+             button->setIconSize(button->size());
             break;
         case 22:
-            button->setIcon(QIcon(QPixmap(":/pic/yellow_horizontal_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Croissant_vertical.png")));
+             button->setIconSize(button->size());
             break;
         case 23:
-            button->setIcon(QIcon(QPixmap(":/pic/yellow_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Croissant_bomb.png")));
+             button->setIconSize(button->size());
             break;
         case 3:
-            button->setIcon(QIcon(QPixmap(":/pic/Macaroon.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Macaroon.png")));
+             button->setIconSize(button->size());
             break;
         case 31:
-            button->setIcon(QIcon(QPixmap(":/pic/green_vertical_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Macaroon_vertical.png")));
+             button->setIconSize(button->size());
             break;
         case 32:
-            button->setIcon(QIcon(QPixmap(":/pic/green_horizontal_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Macaroon_horizontal.png")));
+             button->setIconSize(button->size());
             break;
         case 33:
-            button->setIcon(QIcon(QPixmap(":/pic/green_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Macaroon_bomb.png")));
+             button->setIconSize(button->size());
             break;
         case 4:
-            button->setIcon(QIcon(QPixmap(":/pic/Donut.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Donut.png")));
+             button->setIconSize(button->size());
             break;
         case 41:
-            button->setIcon(QIcon(QPixmap(":/pic/blue_vertical_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Donut_vertical.png")));
+             button->setIconSize(button->size());
             break;
         case 42:
-            button->setIcon(QIcon(QPixmap(":/pic/blue_horizontal_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Donut_horizontal.png")));
+             button->setIconSize(button->size());
             break;
         case 43:
-            button->setIcon(QIcon(QPixmap(":/pic/blue_bomb.png")));
+            button->setIcon(QIcon(QPixmap(":/pic/picture/Donut_bomb.png")));
+             button->setIconSize(button->size());
             break;
         case 5:
             button->setIcon(QIcon(QPixmap(":/pic/power_bomb.png")));
+             button->setIconSize(button->size());
             break;
         default:
             button->setIcon(QIcon(QPixmap("NO PICTURE")));
@@ -120,12 +137,12 @@ void Grille::click()
 
 void Grille::moveRight()
 {
-    button->setGeometry(col*50 + deplacer*10 , row*50 ,50,50);
+    button->setGeometry(WIDTH + deplacer*10 , HEIGHT ,50,50);
     deplacer++;
     if(deplacer > 5){
         deplacer = 1;
         disconnect(time,SIGNAL(timeout()),this,SLOT(moveRight()));
-        button->setGeometry(col*50,row*50,50,50);
+        button->setGeometry(WIDTH,HEIGHT,50,50);
 
         setCandy();
         //time->stop();
@@ -136,12 +153,12 @@ void Grille::moveRight()
 
 void Grille::moveLeft()
 {
-    button->setGeometry(col*50- deplacer *10,row*50,50,50);
+    button->setGeometry(WIDTH- deplacer *10,HEIGHT,50,50);
     deplacer++;
     if(deplacer > 5){
         deplacer = 1;
         disconnect(time,SIGNAL(timeout()),this,SLOT(moveLeft()));
-        button->setGeometry(col*50,row*50,50,50);
+        button->setGeometry(WIDTH,HEIGHT,50,50);
         setCandy();
         //time->stop();
         //emit MoveDone();
@@ -151,13 +168,13 @@ void Grille::moveLeft()
 
 void Grille::moveDown()
 {
-    button->setGeometry(col*50 , row*50 + deplacer*10 , 50, 50);
+    button->setGeometry(WIDTH , HEIGHT + deplacer*10 , 50, 50);
     deplacer++;
     if(deplacer > 5)
     {
         deplacer=1;
         disconnect(time,SIGNAL(timeout()),this,SLOT(moveDown()));
-        button->setGeometry(col*50,row*50,50,50);
+        button->setGeometry(WIDTH,HEIGHT,50,50);
         setCandy();
         //time->stop();
         emit moveDone();
@@ -167,12 +184,12 @@ void Grille::moveDown()
 
 void Grille::moveUp()
 {
-    button->setGeometry(col*50,row*50-deplacer*10,50,50);
+    button->setGeometry(WIDTH,HEIGHT-deplacer*10,50,50);
     deplacer++;
     if(deplacer>5){
         deplacer=1;
         disconnect(time,SIGNAL(timeout()),this,SLOT(moveUp()));
-        button->setGeometry(col*50,row*50,50,50);
+        button->setGeometry(WIDTH,HEIGHT,50,50);
         setCandy();
         //time->stop();
         //emit MoveDone();
